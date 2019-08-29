@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
+commit="$1"
 # Install Maps dependencies via composer
 cd "$(dirname $(readlink -f "$0"))"
-git submodule update --init
-cd src/maps && make
+if [[ "${commit}" == "" ]]; then
+	git submodule update --init
+	cd src/maps && make
+else
+	cd src/maps
+	git fetch --all || exit 1
+	git checkout "${commit}" || exit 1
+	make
+fi
 cd "$(dirname $(readlink -f "$0"))"
 # Build containers
 docker-compose up -d --build --force-recreate
@@ -17,7 +25,7 @@ set -x
 # Copy intial Nextcloud Maps app into web root
 docker exec -it maps_app_1 cp -r /opt/maps/ /var/www/html/apps/maps/
 # Allow read/write for "other" so that user on host can edit live files
-docker exec -it maps_app_1 chown -R www-data:www-data /var/www/html 
+docker exec -it maps_app_1 chown -R www-data:www-data /var/www/html
 docker exec -it maps_app_1 chmod -R a+rwX /var/www/html/
 set +x
 while ! docker exec maps_db_1 mysql --user=nextcloud --password=password -e "SELECT 1" >/dev/null 2>&1; do
