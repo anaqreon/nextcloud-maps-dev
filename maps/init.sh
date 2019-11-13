@@ -2,7 +2,7 @@
 
 # Install Maps dependencies via composer
 cd "$(dirname $(readlink -f "$0"))"
-git submodule update --init
+# git submodule update --init
 cd src/maps && make
 cd "$(dirname $(readlink -f "$0"))"
 # Build containers
@@ -17,7 +17,7 @@ set -x
 # Copy intial Nextcloud Maps app into web root
 docker exec -it maps_app_1 cp -r /opt/maps/ /var/www/html/apps/maps/
 # Allow read/write for "other" so that user on host can edit live files
-docker exec -it maps_app_1 chown -R www-data:www-data /var/www/html 
+docker exec -it maps_app_1 chown -R www-data:www-data /var/www/html
 docker exec -it maps_app_1 chmod -R a+rwX /var/www/html/
 set +x
 while ! docker exec maps_db_1 mysql --user=nextcloud --password=password -e "SELECT 1" >/dev/null 2>&1; do
@@ -40,3 +40,11 @@ echo "Enabling Contacts and Maps apps..."
 docker exec -it --user www-data maps_app_1 php occ app:enable maps contacts
 echo "Nextcloud instance is online. Happy coding!"
 exit 0
+
+sudo rm -rf maps/www
+tar -xf nextcloud_maps_dev.www.tgz
+sudo chmod -R a+rwX maps/www/
+docker exec maps_db_1 mysql --user=nextcloud --password=password nextcloud < nextcloud_maps_dev.sql
+
+#~ docker exec maps_app_1 chmod -R o+rwX /var/www/html/
+#~ tar -czf nextcloud_maps_dev.www.tgz maps/www/

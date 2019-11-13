@@ -23,7 +23,7 @@ services:
       - internal
   app:
     image: nextcloud_maps_dev
-    build: ./nextcloud-docker/16.0/apache
+    build: ./nextcloud-docker/17.0/apache
     links:
       - db
     volumes:
