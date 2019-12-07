@@ -3,7 +3,7 @@
 # Install Maps dependencies via composer
 cd "$(dirname $(readlink -f "$0"))"
 # git submodule update --init
-cd src/maps && make
+# cd src/maps && make
 cd "$(dirname $(readlink -f "$0"))"
 # Build containers
 docker-compose up -d --build --force-recreate
@@ -15,10 +15,12 @@ done
 echo "Apache server online. Copy in Maps app files and set permissions..."
 set -x
 # Copy intial Nextcloud Maps app into web root
-docker exec -it maps_app_1 cp -r /opt/maps/ /var/www/html/apps/maps/
+# docker exec -it maps_app_1 cp -r /opt/maps/ /var/www/html/apps/maps/
 # Allow read/write for "other" so that user on host can edit live files
 docker exec -it maps_app_1 chown -R www-data:www-data /var/www/html
 docker exec -it maps_app_1 chmod -R a+rwX /var/www/html/
+docker exec -it -u www-data -w /var/www/html/apps/ maps_app_1 git clone --branch issue-70-share-favorite-locations https://github.com/nextcloud/maps/
+docker exec -it -u www-data -w /var/www/html/apps/maps maps_app_1 make
 set +x
 while ! docker exec maps_db_1 mysql --user=nextcloud --password=password -e "SELECT 1" >/dev/null 2>&1; do
 	echo "Waiting for mysql database to come online..."

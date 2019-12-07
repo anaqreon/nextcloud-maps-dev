@@ -1,8 +1,7 @@
 [submodule "maps/nextcloud-docker"]
 	path = maps/nextcloud-docker
 	url = https://github.com/nextcloud/docker.git
-	branch = master
 [submodule "maps/src/maps"]
 	path = maps/src/maps
-	url = https://github.com/paulschwoerer/maps.git
-	branch = vue-rewrite
+	url = https://github.com/nextcloud/maps.git
+	branch = issue-70-share-favorite-locations
