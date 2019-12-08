@@ -40,13 +40,7 @@ docker exec -it --user www-data maps_app_1  php occ maintenance:install \
 # Enable apps
 echo "Enabling Contacts and Maps apps..."
 docker exec -it --user www-data maps_app_1 php occ app:enable maps contacts
-echo "Nextcloud instance is online. Happy coding!"
+echo "Nextcloud instance is online. Open http://localhost:8000 in your browser and log in."
+echo "Executing `npm run watch` to generate run-time code..."
+docker exec -it --user www-data -w /var/www/html/apps/maps/ maps_app_1 npm run watch
 exit 0
-
-sudo rm -rf maps/www
-tar -xf nextcloud_maps_dev.www.tgz
-sudo chmod -R a+rwX maps/www/
-docker exec maps_db_1 mysql --user=nextcloud --password=password nextcloud < nextcloud_maps_dev.sql
-
-#~ docker exec maps_app_1 chmod -R o+rwX /var/www/html/
-#~ tar -czf nextcloud_maps_dev.www.tgz maps/www/
