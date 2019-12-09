@@ -1,6 +1,7 @@
 [submodule "maps/nextcloud-docker"]
 	path = maps/nextcloud-docker
-	url = https://github.com/nextcloud/docker.git
+	url = https://github.com/anaqreon/docker.git
+	branch = nextcloud-maps-issue-70
 [submodule "maps/src/maps"]
 	path = maps/src/maps
 	url = https://github.com/nextcloud/maps.git
