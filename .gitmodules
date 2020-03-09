@@ -1,6 +1,4 @@
-[submodule "maps/nextcloud-docker"]
-	path = maps/nextcloud-docker
-	url = https://github.com/nextcloud/docker.git
 [submodule "maps/src/maps"]
 	path = maps/src/maps
 	url = https://github.com/nextcloud/maps.git
+	branch = master

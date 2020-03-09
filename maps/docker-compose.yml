@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 
 volumes:
   db:
@@ -10,6 +10,7 @@ networks:
 services:
   db:
     image: mariadb
+    container_name: nc_maps_dev_db
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     restart: always
     volumes:
@@ -22,8 +23,8 @@ services:
     networks:
       - internal
   app:
-    image: nextcloud_maps_dev
-    build: ./nextcloud-docker/16.0/apache
+    container_name: nc_maps_dev_app
+    build: .
     links:
       - db
     volumes:
@@ -34,3 +35,6 @@ services:
       - internal
     ports:
       - 8000:80
+    environment:
+      - APACHE_RUN_USER=webserver
+      - APACHE_RUN_GROUP=webserver

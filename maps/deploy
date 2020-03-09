@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -e
+
+scriptDir="$(dirname "$(readlink -f "$0")")"
+cd "${scriptDir}"
+
+commit="$1"
+if [[ "X${commit}" == "X" ]]; then
+	commit="master"
+fi
+# Install Maps dependencies via composer
+cd src/maps
+git fetch --all || exit 1
+git checkout "${commit}" || exit 1
+make
+
+cd "${scriptDir}"
+nctag="$2"
+if [[ "X${nctag}" == "X" ]]; then
+	nctag="nextcloud:latest"
+fi
+# Set the current system user ID and Nextcloud Docker image tag to render
+# the Dockerfile template
+sed 's/{{UID}}/'"$(id -u)"'/g' Dockerfile.tpl > Dockerfile
+sed -i 's/{{NC_TAG}}/'"${nctag}"'/g' Dockerfile
+
+# Build containers
+docker-compose up -d --build
+echo "Wait while Docker builds and launches containers..."
+echo -n "* Waiting for Apache server to come online..."
+while ! curl -L localhost:8000 >/dev/null 2>&1; do
+	echo -n "."
+	sleep 3
+done
+echo
+echo "  Apache server online. Copy in Maps app files and set permissions..."
+# Copy intial Nextcloud Maps app into web root
+docker exec -it nc_maps_dev_app cp -r /opt/maps/ /var/www/html/apps/maps/
+# Set ownership of Nextcloud files to match host user
+docker exec -it nc_maps_dev_app chown -R "$(id -u)":"$(id -g)" /var/www/html/
+echo -n "* Waiting for MySQL database to come online..."
+while ! docker exec nc_maps_dev_db mysql --user=nextcloud --password=password -e "SELECT 1" >/dev/null 2>&1; do
+	echo -n "."
+	sleep 3
+done
+echo
+echo "  MySQL database online. Proceeding with automated installation..."
+# Complete Nextcloud installation
+docker exec -it --user webserver nc_maps_dev_app php occ maintenance:install \
+  --database "mysql" \
+  --database-name "nextcloud" \
+  --database-user "nextcloud" \
+  --database-pass "password" \
+  --database-host "nc_maps_dev_db" \
+  --admin-user "admin" \
+  --admin-pass "password" \
+  --data-dir "/var/www/html/data"
+# Enable apps
+echo "Enabling Contacts and Maps apps..."
+docker exec -it --user webserver nc_maps_dev_app php occ app:enable maps contacts
+echo "Nextcloud instance is online. Happy coding!"
+exit 0

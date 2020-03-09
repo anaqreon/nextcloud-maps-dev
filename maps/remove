@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+scriptDir="$(dirname "$(readlink -f "$0")")"
+cd "${scriptDir}"
+
+docker-compose down
+docker volume rm maps_db
+rm -rf www/
+rm Dockerfile
