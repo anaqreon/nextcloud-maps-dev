@@ -4,7 +4,13 @@ The purpose of this repo is to make it easy to deploy Nextcloud Maps for develop
 
 ## Deploy
 
-After cloning this repo, run the initialization script to build the Docker containers and automatically deploy Nextcloud and the Maps app for development:
+Make sure to clone this repository recursively.
+
+```
+git clone --recursive https://github.com/anaqreon/nextcloud-maps-dev.git
+```
+
+After cloning is done, run the initialization script to build the Docker containers and automatically deploy Nextcloud and the Maps app for development:
 
 ```
 ./maps/deploy [maps_git_repo_commit] [nextcloud_docker_tag]
